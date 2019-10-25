@@ -7,13 +7,19 @@ buildscript {
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath ('org.postgresql:postgresql:9.3-1102-jdbc41')
     }
+}
+
+plugins {
+    id 'org.liquibase.gradle' version '1.2.1'
 }
 
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
+apply plugin: 'org.liquibase.gradle'
 
 group = 'wolox'
 version = '0.0.1-SNAPSHOT'
@@ -33,4 +39,27 @@ dependencies {
     compile('org.junit.jupiter:junit-jupiter-api')
     compile('org.springframework.boot:spring-boot-starter-security')
     compile group: 'org.simplejavamail', name: 'simple-java-mail', version: '4.1.3'
+    compile("org.liquibase:liquibase-core")
+
+}
+
+
+task dev {
+    liquibase {
+        activities {
+            main {
+                changeLogFile changeLog
+                url mainDbUrl
+                username username
+                password password
+            }
+            test {
+                changeLogFile changeLog
+                url testDbUrl
+                username username
+                password password
+            }
+        }
+        runList = 'test, main'
+    }
 }
